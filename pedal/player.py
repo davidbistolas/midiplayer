@@ -42,7 +42,6 @@ class Player:
 
     def play(self):
         gc.collect()
-        print("player.play() - Starting Player for :",self.playlist.get_current_song())
         self.filename = self.playlist.path + "/" + self.playlist.get_current_song()
         self.utime_played = 0
         if not self.is_playing:
@@ -66,7 +65,7 @@ class Player:
                     print("player._play() Exiting thread due to song end")
                     self.update_status()
 
-                    # break
+                    break
 
                 self.midi_out.write(event.to_midi())
                 utime.sleep_us(event.delta_us)
@@ -79,7 +78,7 @@ class Player:
                 print("player._play() - Exiting thread due to abrupt stop")
                 self.update_status()
 
-                # break
+                break
 
             self.update_status()
 
