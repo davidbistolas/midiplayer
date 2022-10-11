@@ -16,7 +16,7 @@ from pedal.player import Player
 from pedal.playlist import Playlist
 from pedal.decorators import threadsafe
 
-class MidiPedal:
+class MidiPlayer:
     """
     The MidiPedal App.
     """
@@ -71,9 +71,9 @@ class MidiPedal:
 
         # sck, mosi, miso, dc, cs, rst,
         self.screen = LCDDisplay(18, 19, 16, 15, 17, 14, colours=colours)
-        self.screen.show_splash("Midi Player v2r11")
+        self.screen.show_splash("Midi Player v2r15")
 
-        self.playlist = Playlist(path="/midi", playlist_file="playlist.txt")
+        self.playlist = Playlist(path="/storage", playlist_file="playlist.txt")
 
         self.queue = {} #fake queue, since micropython doesn't actually have one
 
@@ -222,6 +222,7 @@ class MidiPedal:
             gc.collect()
 
     def update_status(self, status):
+        print("midiplayer.update_status: got ",status)
         if self.player:
             self.current_tempo = status["tempo"]
             self.current_time = status["time"]
@@ -239,5 +240,5 @@ class MidiPedal:
         
 machine.freq(280000000)
 
-app = MidiPedal()
+app = MidiPlayer()
 app.run()

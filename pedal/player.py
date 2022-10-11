@@ -27,8 +27,9 @@ class Player:
 
     @threadsafe
     def update_status(self):
-        print("player.update_status - updating status")
-        self.interface.update_status({"playing": self.is_playing, "tempo": self.current_tempo, "time": self.utime_played})
+        status = {"playing": self.is_playing, "tempo": self.current_tempo, "time": self.utime_played}
+        print("player.update_status - updating status with ", status)
+        self.interface.update_status(status)
 
     def stop(self):
         # print("player.stop() Called", self.queue)
@@ -42,12 +43,12 @@ class Player:
 
     def play(self):
         gc.collect()
-        print("player.play() - Starting Player for :",self.playlist.get_current_song() ,self.queue)
+        print("player.play() - Starting Player for :",self.playlist.get_current_song())
         self.filename = self.playlist.path + "/" + self.playlist.get_current_song()
         self.utime_played = 0
         if not self.is_playing:
             self.is_playing = True
-            # print("player.play() - Started:", self.queue)
+            self.update_status()
             self.thread = _thread.start_new_thread(self._play, ())
 
     def _play(self):
@@ -77,6 +78,6 @@ class Player:
                 print("player._play() - Exiting thread due to abrupt stop")
                 break
 
-        self.update_status()
+            self.update_status()
 
         # print("player._play() - TODO Send the all-notes-off message here.")
