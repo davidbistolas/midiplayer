@@ -97,11 +97,9 @@ class MidiPedal:
 
     @staticmethod
     def tempo_to_bpm(tempo):
-        """Convert MIDI file tempo to BPM. 
-        Returns BPM as an integer
-            250000 => 240
-            500000 => 120
-            1000000 => 60
+        """
+        Convert MIDI tempo to BPM.
+        returns: integer
         """
 
         if tempo == 0:
@@ -112,27 +110,11 @@ class MidiPedal:
 
     def next_song(self):
         print("self.next_song() - Transport hit", self.is_playing, self.current_time, self.current_tempo)
-
-        # print("app.next_song() - Selecting next song")
-        # print("app.next_song() - Stopping player")
         if self.player:
             self.player.stop()
-        # print("app.next_song() - Waiting on stop signal")
-        # while self.is_playing:
-        #     self.process_queue()
-        #     # print("app.next_song() - Waiting for player to stop", self.player.status())
-        #     time.sleep(0.5)
-
         self.stop()
-
-        # if self.is_playing:
-        #     self.is_playing = False
-        # print("app.next_song() - Stopped player, going to next song", self.player.status())
         self.playlist.goto_next_song()
         self.display_playlist()
-
-        # print("Selecting", self.playlist.get_current_song())
-        # self.current_tempo = self.player.get_initial_tempo((self.playlist.get_current_song()))
         self.current_tempo = 0
         self.bpm_display.clear()
         self.display_time()
@@ -143,10 +125,7 @@ class MidiPedal:
         if self.player:
             self.player.stop()
         self.stop()
-
         self.playlist.goto_previous_song()
-        # print("Selecting", self.playlist.get_current_song())
-        # self.current_tempo = self.player.get_initial_tempo((self.playlist.get_current_song()))
         self.current_tempo = 0
         self.bpm_display.clear()
         self.display_time()
@@ -154,7 +133,7 @@ class MidiPedal:
         self.rgb_led.set(self.stop_color)
 
     def transport(self):
-        print("self.transport() - Transport hit", self.is_playing, self.current_time, self.current_tempo)
+        print("self.transport() - Transport hit {", self.is_playing, self.current_time, self.current_tempo,"}")
         if self.is_playing:
             self.stop()
         else:
