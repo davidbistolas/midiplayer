@@ -75,8 +75,6 @@ class MidiPlayer:
 
         self.playlist = Playlist(path="/storage", playlist_file="playlist.txt")
 
-        self.queue = {} #fake queue, since micropython doesn't actually have one
-
         # self.player = Player(self.playlist)
         self.player = None
 
