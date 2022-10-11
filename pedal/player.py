@@ -66,7 +66,7 @@ class Player:
                     print("player._play() Exiting thread due to song end")
                     self.update_status()
 
-                    break
+                    # break
 
                 self.midi_out.write(event.to_midi())
                 utime.sleep_us(event.delta_us)
@@ -79,7 +79,7 @@ class Player:
                 print("player._play() - Exiting thread due to abrupt stop")
                 self.update_status()
 
-                break
+                # break
 
             self.update_status()
 
