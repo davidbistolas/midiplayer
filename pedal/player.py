@@ -62,7 +62,6 @@ class Player:
                 if event.is_end():
                     self.utime_played = 0
                     self.is_playing = False
-                    print("player._play() Exiting thread due to song end")
                     self.update_status()
 
                     break
@@ -75,7 +74,6 @@ class Player:
                 self.is_playing = False
                 gc.collect()
                 # self.midi_out.deinit()
-                print("player._play() - Exiting thread due to abrupt stop")
                 self.update_status()
 
                 break
