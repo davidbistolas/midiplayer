@@ -220,7 +220,6 @@ class MidiPlayer:
             gc.collect()
 
     def update_status(self, status):
-        print("midiplayer.update_status: got ",status)
         if self.player:
             self.current_tempo = status["tempo"]
             self.current_time = status["time"]

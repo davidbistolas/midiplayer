@@ -28,7 +28,6 @@ class Player:
     @threadsafe
     def update_status(self):
         status = {"playing": self.is_playing, "tempo": self.current_tempo, "time": self.utime_played}
-        print("player.update_status - updating status with ", status)
         self.interface.update_status(status)
 
     def stop(self):
