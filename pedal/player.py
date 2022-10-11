@@ -27,6 +27,7 @@ class Player:
 
     @threadsafe
     def update_status(self):
+        print("player.update_status - updating status")
         self.interface.update_status({"playing": self.is_playing, "tempo": self.current_tempo, "time": self.utime_played})
 
     def stop(self):
@@ -41,8 +42,7 @@ class Player:
 
     def play(self):
         gc.collect()
-        # print("player.play() - Starting Player for :",self.playlist.get_current_song() ,self.queue)
-
+        print("player.play() - Starting Player for :",self.playlist.get_current_song() ,self.queue)
         self.filename = self.playlist.path + "/" + self.playlist.get_current_song()
         self.utime_played = 0
         if not self.is_playing:
