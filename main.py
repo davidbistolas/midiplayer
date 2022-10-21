@@ -1,10 +1,10 @@
 import gc
 from math import floor
-from time import ticks_us
+from time import ticks_us, sleep_us, sleep_ms
 
 import machine
-import utime
 from machine import Pin
+from machine import Timer
 
 from interface.buttons import SimpleButton
 from interface.colours import DisplayColours
@@ -55,16 +55,16 @@ class MidiPlayer:
         # Set up buttons
         self.transport_btn = SimpleButton(machine.Pin(26, Pin.IN, Pin.PULL_DOWN),
                                           callback=self.transport,
-                                          bounce_time=100,
+                                          bounce_time=50,
                                           )
 
         self.next_btn = SimpleButton(machine.Pin(27, Pin.IN, Pin.PULL_DOWN),
                                      self.next_song,
-                                     bounce_time=100)
+                                     bounce_time=50)
 
         self.prev_btn = SimpleButton(machine.Pin(28, Pin.IN, Pin.PULL_DOWN),
                                      self.last_song,
-                                     bounce_time=100)
+                                     bounce_time=50)
 
         # Set up the displays
 
@@ -84,6 +84,7 @@ class MidiPlayer:
 
         # transport/playlist control
         self.is_playing = False
+        self.is_stopped = True
         self.go_to_next_song = False
         self.go_to_previous_song = False
         self.start_playing = False
@@ -128,12 +129,12 @@ class MidiPlayer:
     def stop(self):
         if self.player:
             self.player.stop()
-            self.is_playing = False
-            self.current_tempo = 0
-            self.bpm_display.clear()
-            self.rgb_led.set(self.stop_color)
-            self.player = None
-            gc.collect()
+        self.is_playing = False
+        self.current_tempo = 0
+        self.bpm_display.clear()
+        self.rgb_led.set(self.stop_color)
+        self.player = None
+        gc.collect()
 
     def play(self):
         if self.player:
@@ -180,29 +181,41 @@ class MidiPlayer:
         bpm = self.tempo_to_bpm(self.current_tempo)
         self.bpm_display.set(bpm)
 
-    def main_loop(self):
+    def handle_controls(self):
         while True:
             if self.go_to_next_song:
                 self.go_to_next_song = False
                 self.stop()
                 self.playlist.goto_next_song()
+                self.display_playlist()
 
             elif self.go_to_previous_song:
                 self.go_to_previous_song = False
                 self.stop()
                 self.playlist.goto_previous_song()
+                self.display_playlist()
 
             elif self.start_playing:
+                print("Player starting")
                 self.start_playing = False
                 self.is_playing = True
                 self.play()
 
             elif self.stop_playing:
+                print("Player Stopping")
                 self.stop_playing = False
                 self.is_playing = False
                 self.stop()
 
-            elif self.is_playing:
+            elif self.is_stopped:
+                print("Player Stopped")
+                self.is_playing = False
+                self.is_stopped = False
+                self.stop()
+
+    def tempo_light(self):
+            if self.is_playing:
+                self.is_stopped = False
                 now = ticks_us()
                 offset = now - self.last_loop_utime
                 self.last_loop_utime = now
@@ -211,29 +224,28 @@ class MidiPlayer:
                         self.rgb_led.set(self.tempo_color)
                     else:
                         self.rgb_led.set(self.play_color)
-            else:
-                self.stop()
 
-            self.display_tempo()
-            self.display_time()
-            utime.sleep_us(int(self.bpm_time_offset))
-            gc.collect()
+                sleep_us(int(self.bpm_time_offset))
+                gc.collect()
+            else:
+                sleep_ms(500)
 
     def update_status(self, status):
         if self.player:
             self.current_tempo = status["tempo"]
             self.current_time = status["time"]
             self.is_playing = status["playing"]
+            self.is_stopped = not status["playing"]
 
     def run(self):
         self.rgb_led.set(app.stop_color)
         self.screen.clear()
         self.display_playlist()
-        # self.loop.create_task(self.update_d isplays())
-        # self.loop.run_forever()
+        time_display_timer = Timer(period=1000, mode=Timer.PERIODIC, callback=self.display_time)
+        tempo_display_timer = Timer(period=500, mode=Timer.PERIODIC, callback=self.display_tempo)
+        transport_timer = Timer(period=500, mode=Timer.PERIODIC, callback=self.handle_controls)
         while True:
-            self.main_loop()
-
+            self.tempo_light()
 
 machine.freq(280000000)
 
