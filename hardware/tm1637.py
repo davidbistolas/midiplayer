@@ -32,7 +32,7 @@ TM1637_CMD1 = const(64)  # 0x40 data command
 TM1637_CMD2 = const(192) # 0xC0 address command
 TM1637_CMD3 = const(128) # 0x80 display control command
 TM1637_DSP_ON = const(8) # 0x08 display on
-TM1637_DELAY = const(10) # 10us delay between clk/dio pulses
+TM1637_DELAY = const(1) # 10us delay between clk/dio pulses
 TM1637_MSB = const(128)  # msb is the decimal point or the colon depending on your display
 
 # 0-9, a-z, blank, dash, star
@@ -170,10 +170,13 @@ class TM1637(object):
         and separated by a colon."""
         num1 = max(-9, min(num1, 99))
         num2 = max(-9, min(num2, 99))
-        segments = self.encode_string('{0:0>2d}{1:0>2d}'.format(num1, num2))
-        if colon:
-            segments[1] |= 0x80 # colon on
-        self.write(segments)
+        try:
+            segments = self.encode_string('{0:0>2d}{1:0>2d}'.format(num1, num2))
+            if colon:
+                segments[1] |= 0x80 # colon on
+            self.write(segments)
+        except RuntimeError:
+            print("Data:",num1, num2)
 
     def temperature(self, num):
         if num < -9:
